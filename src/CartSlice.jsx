@@ -22,17 +22,9 @@ export const CartSlice = createSlice({
     },
 
     removeItem: (state, action) => {
-      const { name, image, cost } = action.payload; // Destructure product details from the action payload
-      // Check if the item already exists in the cart by comparing names
-      const existingItem = state.items.find(item => item.name === name);
-      if (existingItem) {
-        // If item already exists in the cart, decrease its quantity
-        existingItem.quantity--;
-        // If the quantity becomes 0, remove the item from the cart
-        if (existingItem.quantity === 0) {
-          state.items = state.items.filter(item => item.name !== name);
-        }
-
+        const { name} = action.payload; // Destructure product details from the action payload
+        state.items = state.items.filter(item => item.name !== name);
+        },
         // Note on Javascript.
         // The pattern above using filter() is a common way to remove an item from an array in JavaScript. Filter() is a Javascript method.
         // It works by:
@@ -42,8 +34,8 @@ export const CartSlice = createSlice({
         // Then we assign the resulting array back to state.items.
         // React is big on immutability. And here we do not change the original state.items array. Instead, we create 
         // a new array and point/ assign the array variable to it.
-      } 
-    },
+    //   } 
+    // },
     updateQuantity: (state, action) => {
       const { name, quantity } = action.payload; // Destructure the product name and new quantity from the action payload
       // Find the item in the cart that matches the given name

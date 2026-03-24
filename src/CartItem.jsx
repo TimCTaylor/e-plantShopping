@@ -17,7 +17,7 @@ const CartItem = ({ onContinueShopping }) => {
   const calculateTotalAmount = () => {
     let total_amount = 0;
     cart.forEach(item => {
-      total_amount += parseFloat(item.cost.substring(1)) * item.quantity;
+      total_amount += parseFloat(item.cost) * item.quantity;
     });
     return total_amount.toFixed(2); // Return total amount formatted to 2 decimal places
   };
@@ -32,7 +32,7 @@ const CartItem = ({ onContinueShopping }) => {
   };
 
   const handleCheckoutShopping = (e) => {
-    alert('Coming soon... Functionality to be added for future reference');
+    alert('Coming soon... Checkout functionality to be added here...');
   };
 
 
@@ -56,7 +56,7 @@ const CartItem = ({ onContinueShopping }) => {
 
   // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {
-    return (parseFloat(item.cost.substring(1)) * item.quantity).toFixed(2);
+    return (parseFloat(item.cost) * item.quantity).toFixed(2);
   };
 
   return (
@@ -68,7 +68,7 @@ const CartItem = ({ onContinueShopping }) => {
             <img className="cart-item-image" src={item.image} alt={item.name} />
             <div className="cart-item-details">
               <div className="cart-item-name">{item.name}</div>
-              <div className="cart-item-cost">{item.cost}</div>
+              <div className="cart-item-cost">${item.cost} each</div>
               <div className="cart-item-quantity">
                 <button className="cart-item-button cart-item-button-dec" onClick={() => handleDecrement(item)}>-</button>
                 <span className="cart-item-quantity-value">{item.quantity}</span>
