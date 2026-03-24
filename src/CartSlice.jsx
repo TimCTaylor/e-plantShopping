@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+// import { useSelector } from 'react-redux';
 
 export const CartSlice = createSlice({
   name: 'cart',
@@ -9,26 +10,14 @@ export const CartSlice = createSlice({
     addItem: (state, action) => {
       const { name, image, cost } = action.payload; // Destructure product details from the action payload
       // Check if the item already exists in the cart by comparing names
-      console.log(`Adding item: ${name}, Cost: $${cost}`);
 
-      alert(`Item Added: ${name}\nCost: $${cost}`);
       const existingItem = state.items.find(item => item.name === name);
       if (existingItem) {
         // If item already exists in the cart, increase its quantity
         existingItem.quantity++;
-
-
-      console.log(`existing item found. New quantity: ${existingItem.quantity}`);
-      
-      alert(`existing item found. New quantity: ${existingItem.quantity}`);
-
       } else {
         // If item does not exist, add it to the cart with quantity 1
         state.items.push({ name, image, cost, quantity: 1 });
-
-              console.log(`existing item not found. Item added to cart with quantity 1.`);
-      
-      alert(`existing item not found. Item added to cart with quantity 1.`);
       }
     },
 

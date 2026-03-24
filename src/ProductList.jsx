@@ -249,6 +249,8 @@ function ProductList({ onHomeClick }) {
         color: 'white',
         fontSize: '30px',
         textDecoration: 'none',
+        position: 'relative', 
+        display: 'inline-block'
     }
 
     const handleHomeClick = (e) => {
@@ -272,10 +274,37 @@ function ProductList({ onHomeClick }) {
     };
 
     const handleAddToCart = (plant) => {
-        alert(`Add to Cart clicked. Plant: ${plant.name}`);
         dispatch(addItem(plant));
     };
 
+    const cartItems = useSelector((state) => state.cart.items);
+
+    // I use this function to calculate the total quantity of items in the cart, which is displayed as a badge on the cart icon in the navbar.
+    // The navbar UI is rendered in the return() of this component (ProductList). And the calculateCartQuantity function is just below and also inside the 
+    // ProductList component. The reason I make a point of this is because the cart quantity updates not only when adding plants to the cart in ProductList, but
+    // also when incrementing/ decrementing/ deleting items in the CartItem component. 
+    // And yet CartItem component does not need to know about the calculateCartQuantity function at all. 
+    // This is the Redux store in operation. This is the whole point.
+    // So although CartItem doesn't get to see inside the ProductList component, it *does* dispatch actions that update the Redux store
+    // Since the ProductList component uses the useSelector hook to read the cart items from the Redux store, it will automatically get the updated cart items
+    //  whenever they change in the store.
+    // I could add whole new UI pages and new compoennts in new script files, all of which will cause the ProductList component to re-render the cart total. And yet
+    // I don't have to change a line of code in ProductList.jsx and none of the new components need to know anything about the ProductList component. Just so long 
+    // as they dispatch actions that update the cart items in the Redux store, React will handle the re-rendering automatically. 
+    const calculateCartQuantity = () => {
+        let total_quantity = 0;
+        cartItems.forEach(item => {
+            total_quantity += item.quantity;
+        });
+        return total_quantity; // Return total quantity of items in the cart
+    };
+
+    // JavaScript Note: the some() array method is used to check if at least one element in the array satisfies the condition.
+    // In this case, I'm using it for conditional UI, disabling the "Add to Cart" button if the plant is already in the cart.
+    // If I were writing this code for a real application, I would implement proper IDs for the products rather than rely on name.
+    const isPlantInCart = (plant) => {
+        return cartItems.some((item) => item.name === plant.name);
+    };
 
     return (
         <div>
@@ -290,11 +319,19 @@ function ProductList({ onHomeClick }) {
                             </div>
                         </a>
                     </div>
-
                 </div>
                 <div style={styleObjUl}>
                     <div> <a href="#" onClick={(e) => handlePlantsClick(e)} style={styleA}>Plants</a></div>
-                    <div> <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}><h1 className='cart'><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68"><rect width="156" height="156" fill="none"></rect><circle cx="80" cy="216" r="12"></circle><circle cx="184" cy="216" r="12"></circle><path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="mainIconPathAttribute"></path></svg></h1></a></div>
+                    <div> <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}><h1 className='cart'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68">
+                        <rect width="156" height="156" fill="none"></rect>
+                        <circle cx="80" cy="216" r="12"></circle><circle cx="184" cy="216" r="12"></circle>
+                        <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="mainIconPathAttribute"></path>
+                        </svg>
+                                <span style={{ position: 'absolute', top: '20px', right: '20px', backgroundColor: '#ff4444', color: 'white', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold' }}>
+                                {calculateCartQuantity()}
+                            </span>
+                        </h1></a></div>
                 </div>
             </div>
             {!showCart ? (
@@ -305,24 +342,29 @@ function ProductList({ onHomeClick }) {
                             <h2 className='plant_heading'>{category.category}</h2>
                         </div>
                         <div className="product-list">
-                            {category.plants.map((plant) => (
-                                <div key={plant.name} className="product-card">
-                                    <p className="product-title">{plant.name}</p>
-                                    <img src={plant.image} alt={plant.name} className="product-image" />
-                                    <p className="product-price">${plant.cost}</p>
-                                    <p className="product-description">{plant.description}</p>
+                            {category.plants.map((plant) => {
+                                // Note on the isPlantInCart function and the inCart variable.
+                                // According to the IBM course, this below is a common React pattern.
+                                // I compute a state-derived flag (inCart) and then test this (often with the ternary operation for conditional rendering)
+                                // to determine both UI element interactivity and UI text
+                                const inCart = isPlantInCart(plant);
 
-                                    {/* TODO: change the text and disabled status of the button depending on whether it has been clicked/ the plant is in cart 
-                                     TODO2: index is not a unique id. It is the index within the category. Try using a unique identifier for each plant instead*/}
-                                    <button className="product-button" onClick={() => handleAddToCart(plant)}>Add to Cart</button>
-                            
-                                </div>
-                            ))}
+                                // Note: (because I forgot) we need the return() here for the rendered jsx because we are still inside a map() callback function.
+                                return (
+                                    <div key={plant.name} className="product-card">
+                                        <p className="product-title">{plant.name}</p>
+                                        <img src={plant.image} alt={plant.name} className="product-image" />
+                                        <p className="product-price">${plant.cost}</p>
+                                        <p className="product-description">{plant.description}</p>
+                                        <button className={inCart ? "product-button.added-to-cart" : "product-button"} onClick={() => handleAddToCart(plant)} disabled={inCart}>
+                                            {inCart ? 'Already added' : 'Add to Cart'}
+                                        </button>
+                                    </div>
+                                );
+                            })}
                         </div>
-                        
                     </div>
                 ))}
-
                 </div>
             ) : (
                 <CartItem onContinueShopping={handleContinueShopping} />
