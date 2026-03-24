@@ -4,6 +4,12 @@
 
 Part of **Full Stack Developer Professional Certification**
 
+Final Project: Paradise Nursery Shopping Application
+
+Repo: e-plantShopping  https://github.com/TimCTaylor/e-plantShopping 
+
+Live site: https://timctaylor.github.io/e-plantShopping/ 
+
 This is the graded final project of the course, and it's a simple introduction to some common
 React patterns, particularly the use of the Redux store to manage state.
 
